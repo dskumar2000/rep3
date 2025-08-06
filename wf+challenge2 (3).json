@@ -1,0 +1,199 @@
+{
+  "name": "wf+challenge2",
+  "nodes": [
+    {
+      "parameters": {
+        "trigger": [
+          "app_mention"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "C098M2R8J3D",
+          "mode": "list",
+          "cachedResultName": "all-ai-testing"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        -192
+      ],
+      "id": "8869d85a-3da2-4652-8503-e1007bd9d276",
+      "name": "Slack Trigger",
+      "webhookId": "fce5b22c-3006-46f6-b121-fe891ec7452d",
+      "credentials": {
+        "slackApi": {
+          "id": "hXymqlzgUivKh5Um",
+          "name": "Slack account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawMessage = $node[\"Slack Trigger\"].json[\"text\"];\n\n// Remove Slack user mentions like <@U0991MTR5DG>\nconst cleanedMessage = rawMessage.replace(/<@[^>]+>\\s*/, '');\n\n// Optionally, split the message here if needed\nconst parts = cleanedMessage.split(\" \");\nconst project = parts[0];\nconst hours = parts[1];\nconst description = parts.slice(2).join(\" \");\n\nreturn [\n  {\n    json: {\n      rawMessage,\n      cleanedMessage,\n      project,\n      hours,\n      description\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -192
+      ],
+      "id": "0e9a3cc4-f9ca-40de-8dae-cd53486b9951",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1isK3NmlClQBgAddd1WiWR81ZU42YcZ__ALBWVuJ8G5A",
+          "mode": "list",
+          "cachedResultName": "setest1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1isK3NmlClQBgAddd1WiWR81ZU42YcZ__ALBWVuJ8G5A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2113325566,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1isK3NmlClQBgAddd1WiWR81ZU42YcZ__ALBWVuJ8G5A/edit#gid=2113325566"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Project": "={{ $json.project }}",
+            "Time ": "={{ $json.hours }}",
+            "Act": "={{ $json.description }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Project",
+              "displayName": "Project",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time ",
+              "displayName": "Time ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Act",
+              "displayName": "Act",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        208,
+        -192
+      ],
+      "id": "80bd0e87-f2f2-47de-9d8b-64fa64031a8b",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aePpdUV0o4GPfknK",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C098M2R8J3D",
+          "mode": "list",
+          "cachedResultName": "all-ai-testing"
+        },
+        "text": "={{ $json.Act }} Has been added in the time Sheet",
+        "otherOptions": {
+          "link_names": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        -192
+      ],
+      "id": "9b3df27a-3fc2-4a4c-b6bf-deaadd71f2b8",
+      "name": "Send a message",
+      "webhookId": "6c0a1a14-503e-4603-b8f5-99ee2792c24f",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "Lw2pUBfrggUySmib",
+          "name": "Slack account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "aa201b85-e349-4582-b206-dded731421eb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9f4449632a1b5a481bde16c7abef3cba071f581c6cc63beba702284178a70f88"
+  },
+  "id": "E1l0y0NegFKzgz0O",
+  "tags": []
+}
